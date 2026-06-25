@@ -1,0 +1,67 @@
+{% extends 'registr/base.html' %}
+{% load static %}
+
+{% block title %}Профіль — МійПортал{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'registr/css/profile.css' %}">
+{% endblock %}
+
+{% block page_title %}Мій профіль{% endblock %}
+
+{% block content %}
+<div class="page-content">
+
+  <div class="profile-hero">
+    <div class="profile-avatar-big" style="background:{{ profile.avatar_color }}">
+      {% if profile.avatar %}<img src="{{ profile.avatar.url }}" alt="">
+      {% else %}{{ profile.get_initials }}{% endif %}
+    </div>
+    <div class="profile-hero-info">
+      <h2>{{ user.get_full_name|default:user.username }}</h2>
+      <p>@{{ user.username }} · {{ user.email }}</p>
+      {% if profile.bio %}<p class="bio">{{ profile.bio }}</p>{% endif %}
+    </div>
+  </div>
+
+  <div class="form-card">
+    <h3>Редагувати профіль</h3>
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="two-col">
+        <div class="form-group">
+          <label>{{ form.first_name.label }}</label>
+          {{ form.first_name }}
+          {% for e in form.first_name.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="form-group">
+          <label>{{ form.last_name.label }}</label>
+          {{ form.last_name }}
+          {% for e in form.last_name.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+        </div>
+      </div>
+      <div class="form-group">
+        <label>{{ form.email.label }}</label>
+        {{ form.email }}
+        {% for e in form.email.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="form-group">
+        <label>{{ form.bio.label }}</label>
+        {{ form.bio }}
+      </div>
+      <div class="two-col">
+        <div class="form-group">
+          <label>{{ form.avatar.label }}</label>
+          {{ form.avatar }}
+        </div>
+        <div class="form-group">
+          <label>{{ form.avatar_color.label }}</label><br>
+          {{ form.avatar_color }}
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary">Зберегти зміни</button>
+    </form>
+  </div>
+
+</div>
+{% endblock %}

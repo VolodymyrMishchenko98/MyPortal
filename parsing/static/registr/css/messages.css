@@ -1,0 +1,308 @@
+/* =============================================
+   MESSAGES
+   Clean Minimalist SaaS Dashboard
+   ============================================= */
+
+.msg-layout {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 24px;
+}
+
+.msg-panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all var(--transition);
+}
+
+.tabs {
+  display: flex;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.tab-btn {
+  padding: 14px 24px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  transition: all var(--transition);
+  margin-bottom: -1px;
+  font-family: inherit;
+}
+
+.tab-btn:hover {
+  color: var(--color-text-primary);
+  background: var(--color-accent-bg);
+}
+
+.tab-btn.active {
+  color: var(--color-accent);
+  border-bottom-color: var(--color-accent);
+  background: var(--color-surface);
+  font-weight: 500;
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+.msg-list {
+  max-height: 540px;
+  overflow-y: auto;
+}
+
+.msg-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--color-border);
+  text-decoration: none;
+  color: inherit;
+  transition: all var(--transition);
+  cursor: pointer;
+}
+
+.msg-row:hover {
+  background: var(--color-accent-bg);
+}
+
+.msg-row.unread {
+  background: var(--color-accent-bg);
+  position: relative;
+}
+
+.msg-row.unread::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--color-accent);
+}
+
+.msg-row.unread .msg-subject {
+  font-weight: 500;
+}
+
+.msg-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.msg-avatar.sent {
+  background: var(--color-text-secondary);
+}
+
+.msg-subject {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 4px;
+  color: var(--color-text-primary);
+}
+
+.msg-from {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+.msg-time {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  margin-left: auto;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.msg-preview {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.compose-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 28px;
+  position: sticky;
+  top: 80px;
+  transition: all var(--transition);
+}
+
+.empty-msg {
+  padding: 64px 32px;
+  text-align: center;
+  font-size: 15px;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+
+.msg-detail {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  max-width: 720px;
+}
+
+.msg-detail-header {
+  padding: 28px 32px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.msg-detail-subject {
+  font-size: 22px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  letter-spacing: -0.01em;
+}
+
+.msg-detail-meta {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.msg-detail-body {
+  padding: 32px;
+  font-size: 15px;
+  line-height: 1.75;
+  white-space: pre-wrap;
+  color: var(--color-text-primary);
+}
+
+@media (max-width: 900px) {
+  .msg-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .compose-card {
+    position: static;
+  }
+}
+
+@media (max-width: 600px) {
+  .msg-row {
+    padding: 16px;
+  }
+
+  .msg-detail-header {
+    padding: 20px;
+  }
+
+  .msg-detail-body {
+    padding: 20px;
+  }
+}
+
+/* ФОРМА COMPOSE */
+.compose-card h3 {
+  font-size: 14px;
+  font-weight: 500;
+  margin: 0 0 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.compose-card .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.compose-card .form-group label {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--color-text-secondary);
+}
+
+.compose-card .form-group select,
+.compose-card .form-group input[type="text"],
+.compose-card .form-group input[type="email"],
+.compose-card .form-group textarea {
+  width: 100%;
+  padding: 9px 12px;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--color-text-primary);
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  border-radius: 7px;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  appearance: none;
+}
+
+.compose-card .form-group select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888885' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+}
+
+.compose-card .form-group select:focus,
+.compose-card .form-group input:focus,
+.compose-card .form-group textarea:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(79, 110, 247, 0.1);
+}
+
+.compose-card .form-group textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.compose-card .field-error {
+  font-size: 12px;
+  color: #e5484d;
+}
+
+.compose-card .btn-primary {
+  width: 100%;
+  margin-top: 4px;
+  padding: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: inherit;
+  background: var(--color-accent);
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.compose-card .btn-primary:hover {
+  background: #3d5ce0;
+}
