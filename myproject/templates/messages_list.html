@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}Повідомлення - МійПортал{% endblock %}
+
+{% block content %}
+<div class="messages-container">
+    <div class="messages-header">
+        <h1 class="messages-title">Повідомлення</h1>
+        <a href="{% url 'messages_new' %}" class="btn btn-sm">Написати</a>
+    </div>
+
+    <div class="messages-list">
+        {% for dialog in dialogs %}
+            <a href="{% url 'messages_thread' dialog.user.username %}" class="message-dialog">
+                <div class="dialog-avatar">
+                    {{ dialog.user.username|first|upper }}
+                </div>
+                <div class="dialog-content">
+                    <div class="dialog-name">{{ dialog.user.get_full_name|default:dialog.user.username }}</div>
+                    <div class="dialog-preview">{{ dialog.last_message|truncatechars:50 }}</div>
+                </div>
+                <div class="dialog-meta">
+                    <div class="dialog-time">{{ dialog.last_time|date:"H:i" }}</div>
+                    {% if dialog.unread > 0 %}
+                        <span class="unread-badge">{{ dialog.unread }}</span>
+                    {% endif %}
+                </div>
+            </a>
+        {% empty %}
+            <div class="messages-empty">
+                <p>Немає діалогів.</p>
+                <a href="{% url 'messages_new' %}">Написати перше повідомлення</a>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}МійПортал{% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <nav class="nav">
+                <div class="nav-top">
+                    <a href="{% url 'dashboard' %}" class="logo">МійПортал</a>
+                    <button class="nav-toggle" id="navToggle">☰</button>
+                </div>
+                <div class="nav-menu" id="navMenu">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'dashboard' %}" class="nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">Дашборд</a>
+                        <a href="{% url 'notes' %}" class="nav-item {% if request.resolver_match.url_name == 'notes' %}active{% endif %}">Завдання</a>
+                        <a href="{% url 'messages_list' %}" class="nav-item {% if request.resolver_match.url_name == 'messages_list' or request.resolver_match.url_name == 'messages_thread' or request.resolver_match.url_name == 'messages_new' %}active{% endif %}">
+                            Повідомлення
+                            {% if unread_count > 0 %}
+                                <span class="unread-badge">{{ unread_count }}</span>
+                            {% endif %}
+                        </a>
+                        <a href="{% url 'profile' %}" class="nav-item {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">Профіль</a>
+                        <div class="user-menu">
+                            <button type="button" class="user-menu-trigger" aria-expanded="false" aria-haspopup="true">
+                                <span class="user-avatar-pill">{{ user.username|first|upper }}</span>
+                                <span class="user-menu-meta">
+                                    <span class="user-menu-name">{{ user.get_full_name|default:user.username }}</span>
+                                    <span class="user-menu-role">Онлайн</span>
+                                </span>
+                                <span class="user-menu-caret">▾</span>
+                            </button>
+                            <div class="user-menu-dropdown" role="menu">
+                                <a href="{% url 'profile' %}" class="user-menu-action">👤 Профіль</a>
+                                <a href="{% url 'profile' %}" class="user-menu-action">⚙ Налаштування</a>
+                                <a href="{% url 'messages_list' %}" class="user-menu-action">📨 Повідомлення</a>
+                                <a href="{% url 'notes' %}" class="user-menu-action">📝 Мої задачі</a>
+                                {% if user.is_staff or user.is_superuser %}
+                                    <a href="/admin/" class="user-menu-action">🛡 Адмін-панель</a>
+                                {% endif %}
+                                <form action="{% url 'logout' %}" method="post" class="logout-form">
+                                    {% csrf_token %}
+                                    <button type="submit" class="user-menu-action logout-btn">🚪 Вийти</button>
+                                </form>
+                                <a href="{% url 'profile' %}#delete-account" class="user-menu-action danger-action">🗑 Видалити акаунт</a>
+                            </div>
+                        </div>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="nav-item">Вхід</a>
+                        <a href="{% url 'register' %}" class="nav-item">Реєстрація</a>
+                    {% endif %}
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <div class="message {{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        {% block content %}{% endblock %}
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const navToggle = document.getElementById('navToggle');
+            const navMenu = document.getElementById('navMenu');
+            if (navToggle && navMenu) {
+                navToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+
+            const userMenu = document.querySelector('.user-menu');
+            const userMenuTrigger = document.querySelector('.user-menu-trigger');
+            const userMenuDropdown = document.querySelector('.user-menu-dropdown');
+            if (userMenu && userMenuTrigger && userMenuDropdown) {
+                userMenuTrigger.addEventListener('click', function(event) {
+                    event.stopPropagation();
+                    const isOpen = userMenu.classList.toggle('open');
+                    userMenuTrigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+                });
+
+                document.addEventListener('click', function(event) {
+                    if (!event.target.closest('.user-menu')) {
+                        userMenu.classList.remove('open');
+                        userMenuTrigger.setAttribute('aria-expanded', 'false');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

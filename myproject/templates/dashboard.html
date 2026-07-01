@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}Дашборд - МійПортал{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <h1 class="dashboard-title">Дашборд</h1>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-number">{{ total }}</div>
+            <div class="stat-label">Всього завдань</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ done }}</div>
+            <div class="stat-label">Виконано</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ remaining }}</div>
+            <div class="stat-label">Залишилось</div>
+        </div>
+    </div>
+</div>
+{% endblock %}

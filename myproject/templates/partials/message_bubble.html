@@ -1,0 +1,8 @@
+{% if message %}
+<div class="message-bubble
+    {% if message.sender == user %}outgoing{% else %}incoming{% endif %}
+    {% if message.is_first_in_group %}first-in-group{% endif %}
+    {% if message.is_last_in_group %}last-in-group{% endif %}">
+    <div class="message-text">{{ message.text }}</div>
+</div>
+{% endif %}

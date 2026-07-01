@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block title %}Діалог з {{ recipient.username }} - МійПортал{% endblock %}
+
+{% block content %}
+<div class="thread-container">
+    <div class="thread-header">
+        <a href="{% url 'messages_list' %}" class="back-link">← Повернутись</a>
+        <h1 class="thread-title">{{ recipient.get_full_name|default:recipient.username }}</h1>
+    </div>
+
+    <div class="messages-thread" id="messagesThread">
+        {% for message in thread_messages %}
+            {% if message.show_time_divider %}
+                <div class="time-divider">{{ message.created_at|date:"d E, H:i" }}</div>
+            {% endif %}
+            {% include 'partials/message_bubble.html' with message=message user=user %}
+            {% if is_last_message_mine and message.sender == user and forloop.last and message.is_read %}
+                <div class="read-status">Прочитано</div>
+            {% endif %}
+        {% empty %}
+            <p class="no-messages">Немає повідомлень. Почніть розмову!</p>
+        {% endfor %}
+    </div>
+
+    <div class="message-form-container">
+        <form method="post" class="message-form" id="messageForm">
+            {% csrf_token %}
+            <textarea name="text" class="form-textarea" rows="2" placeholder="Введіть повідомлення..." required></textarea>
+            <button type="submit" class="btn">Надіслати</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('messageForm');
+        const textarea = form?.querySelector('.form-textarea');
+        const submitButton = form?.querySelector('button[type="submit"]');
+        const thread = document.getElementById('messagesThread');
+
+        if (!form || !textarea || !submitButton || !thread) return;
+
+        let isSubmitting = false;
+
+        const setLoading = (isLoading) => {
+            isSubmitting = isLoading;
+            form.classList.toggle('is-loading', isLoading);
+            submitButton.disabled = isLoading;
+            textarea.disabled = isLoading;
+            if (isLoading) {
+                submitButton.dataset.defaultText = submitButton.textContent;
+                submitButton.textContent = 'Надсилається...';
+            } else {
+                submitButton.textContent = submitButton.dataset.defaultText || 'Надіслати';
+            }
+        };
+
+        form.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            if (isSubmitting) return;
+
+            const text = textarea.value.trim();
+            if (!text) return;
+
+            setLoading(true);
+            const csrfToken = form.querySelector('[name="csrfmiddlewaretoken"]').value;
+
+            try {
+                const response = await fetch(window.location.href, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': csrfToken
+                    },
+                    body: new FormData(form)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Request failed');
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    const wrapper = document.createElement('div');
+                    wrapper.innerHTML = data.message_html;
+                    const bubble = wrapper.firstElementChild;
+                    if (bubble) {
+                        bubble.classList.add('message-entering');
+                        thread.appendChild(bubble);
+                        requestAnimationFrame(() => bubble.classList.add('is-visible'));
+                        thread.scrollTo({ top: thread.scrollHeight, behavior: 'smooth' });
+                    }
+                    textarea.value = '';
+                } else {
+                    const errors = Object.values(data.errors || {}).flat().join(' ');
+                    console.error(errors || 'Message submission failed');
+                }
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setLoading(false);
+            }
+        });
+    });
+</script>
+{% endblock %}

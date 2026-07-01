@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}Нове повідомлення - МійПортал{% endblock %}
+
+{% block content %}
+<div class="messages-container">
+    <div class="messages-header">
+        <h1 class="messages-title">Обрати користувача</h1>
+    </div>
+
+    <div class="users-list">
+        {% for user in users %}
+            <a href="{% url 'messages_thread' user.username %}" class="user-card">
+                <div class="user-avatar">
+                    {{ user.username|first|upper }}
+                </div>
+                <div class="user-info">
+                    <div class="user-name">{{ user.get_full_name|default:user.username }}</div>
+                    <div class="user-username">@{{ user.username }}</div>
+                </div>
+            </a>
+        {% empty %}
+            <p>Немає інших користувачів</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

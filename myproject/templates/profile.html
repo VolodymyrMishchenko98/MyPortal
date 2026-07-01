@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+
+{% block title %}Профіль - МійПортал{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <h1 class="profile-title">Профіль</h1>
+    
+    <div class="profile-info">
+        <h3>Мої дані</h3>
+        <div class="profile-row">
+            <span class="profile-label">Ім'я:</span>
+            <span class="profile-value">{{ user.first_name }}</span>
+        </div>
+        <div class="profile-row">
+            <span class="profile-label">Прізвище:</span>
+            <span class="profile-value">{{ user.last_name }}</span>
+        </div>
+        <div class="profile-row">
+            <span class="profile-label">Email:</span>
+            <span class="profile-value">{{ user.email }}</span>
+        </div>
+        <div class="profile-row">
+            <span class="profile-label">Логін:</span>
+            <span class="profile-value">{{ user.username }}</span>
+        </div>
+    </div>
+
+    <div class="notes-form">
+        <h3>Редагувати профіль</h3>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label class="form-label">Ім'я</label>
+                <input type="text" name="first_name" value="{{ user.first_name }}" class="form-input">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Прізвище</label>
+                <input type="text" name="last_name" value="{{ user.last_name }}" class="form-input">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" name="email" value="{{ user.email }}" class="form-input">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Про себе</label>
+                <textarea name="bio" class="form-textarea">{% if user.profile %}{{ user.profile.bio }}{% endif %}</textarea>
+            </div>
+            <button type="submit" class="btn">Зберегти</button>
+        </form>
+    </div>
+
+    <div class="delete-account-card" id="delete-account">
+        <h3>Видалити акаунт</h3>
+        <p>Цю дію неможливо скасувати. Вона видалить ваш профіль, повідомлення, задачі та всі пов’язані дані.</p>
+        <button type="button" class="btn btn-danger delete-account-trigger">Видалити акаунт</button>
+    </div>
+</div>
+
+<div class="modal-backdrop" id="deleteAccountModal" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="deleteModalTitle" aria-describedby="deleteModalDescription">
+        <div class="modal-icon" aria-hidden="true">⚠</div>
+        <h3 id="deleteModalTitle">Видалити акаунт?</h3>
+        <p id="deleteModalDescription">Ця дія необоротна. Буде видалено:</p>
+        <ul class="modal-list">
+            <li>профіль;</li>
+            <li>аватар;</li>
+            <li>повідомлення;</li>
+            <li>діалоги;</li>
+            <li>задачі;</li>
+            <li>повідомлення системи;</li>
+            <li>усі пов’язані дані.</li>
+        </ul>
+        <form method="post" action="{% url 'delete_account' %}" class="delete-account-form">
+            {% csrf_token %}
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary modal-cancel">Скасувати</button>
+                <button type="submit" class="btn btn-danger delete-account-submit">Видалити акаунт</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('deleteAccountModal');
+        const trigger = document.querySelector('.delete-account-trigger');
+        const cancel = document.querySelector('.modal-cancel');
+        const form = document.querySelector('.delete-account-form');
+        const submitButton = document.querySelector('.delete-account-submit');
+        const focusableSelector = 'button, [href], input, textarea, select, [tabindex]:not([tabindex="-1"])';
+
+        if (!modal || !trigger || !form) return;
+
+        let lastFocusedElement = null;
+        let isSubmitting = false;
+
+        const focusableElements = () => Array.from(modal.querySelectorAll(focusableSelector)).filter(el => !el.disabled && el.getAttribute('aria-hidden') !== 'true');
+
+        const openModal = () => {
+            lastFocusedElement = document.activeElement;
+            modal.classList.add('active');
+            modal.setAttribute('aria-hidden', 'false');
+            document.body.classList.add('modal-open');
+            requestAnimationFrame(() => {
+                const firstFocusable = focusableElements()[0];
+                firstFocusable?.focus();
+            });
+        };
+
+        const closeModal = () => {
+            modal.classList.remove('active');
+            modal.setAttribute('aria-hidden', 'true');
+            document.body.classList.remove('modal-open');
+            lastFocusedElement?.focus();
+        };
+
+        trigger.addEventListener('click', openModal);
+        cancel?.addEventListener('click', closeModal);
+        modal.addEventListener('click', function(event) {
+            if (event.target === modal) {
+                closeModal();
+            }
+        });
+
+        document.addEventListener('keydown', function(event) {
+            if (!modal.classList.contains('active')) return;
+            if (event.key === 'Escape') {
+                event.preventDefault();
+                closeModal();
+            }
+            if (event.key === 'Tab') {
+                const elements = focusableElements();
+                if (!elements.length) {
+                    event.preventDefault();
+                    return;
+                }
+                const first = elements[0];
+                const last = elements[elements.length - 1];
+                if (event.shiftKey && document.activeElement === first) {
+                    event.preventDefault();
+                    last.focus();
+                } else if (!event.shiftKey && document.activeElement === last) {
+                    event.preventDefault();
+                    first.focus();
+                }
+            }
+        });
+
+        form.addEventListener('submit', function() {
+            if (isSubmitting) return;
+            isSubmitting = true;
+            submitButton.disabled = true;
+            submitButton.textContent = 'Видаляємо...';
+            localStorage.clear();
+            sessionStorage.clear();
+        });
+    });
+</script>
+{% endblock %}
