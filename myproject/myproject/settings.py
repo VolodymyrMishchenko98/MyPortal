@@ -10,7 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
 from pathlib import Path
+
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,12 +23,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-9r&p-n5m^%*brrsoli08w0(%m=)=ep2vqlr_3z)0saj)sd3xso'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-9r&p-n5m^%*brrsoli08w0(%m=)=ep2vqlr_3z)0saj)sd3xso')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+if os.environ.get('RENDER'):
+    DEBUG = False
+else:
+    DEBUG = os.environ.get('DEBUG', 'True').lower() in {'1', 'true', 'yes', 'on'}
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 
 # Application definition
@@ -75,10 +84,10 @@ WSGI_APPLICATION = 'myproject.wsgi.application'
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
+        conn_max_age=600,
+    )
 }
 
 
@@ -106,6 +115,8 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'uk'
 
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 TIME_ZONE = 'UTC'
 
 USE_I18N = True
@@ -116,40 +127,19 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/'
 LOGIN_URL = '/login/'
 
+CSRF_TRUSTED_ORIGINS = []
+if RENDER_EXTERNAL_HOSTNAME:
+    CSRF_TRUSTED_ORIGINS.append(f'https://{RENDER_EXTERNAL_HOSTNAME}')
 
-# ════════════════════════════════════════════════════════════
-# Додайте цей блок в КІНЕЦЬ вашого authproject/settings.py
-# ════════════════════════════════════════════════════════════
-
-import os
-import dj_database_url
-
-# ── Render автоматично встановлює змінну RENDER ──
-if 'RENDER' in os.environ:
-    DEBUG = False
-
-    RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
-    if RENDER_EXTERNAL_HOSTNAME:
-        ALLOWED_HOSTS = [RENDER_EXTERNAL_HOSTNAME]
-
-    CSRF_TRUSTED_ORIGINS = [f'https://{RENDER_EXTERNAL_HOSTNAME}']
-
-    # База даних — Render надає DATABASE_URL автоматично
-    DATABASES = {
-        'default': dj_database_url.config(
-            default=os.environ.get('DATABASE_URL'),
-            conn_max_age=600,
-        )
-    }
-
-    # Whitenoise — роздає CSS/JS/картинки без окремого сервера
+if os.environ.get('RENDER'):
     MIDDLEWARE.insert(
         MIDDLEWARE.index('django.middleware.security.SecurityMiddleware') + 1,
         'whitenoise.middleware.WhiteNoiseMiddleware',
@@ -158,6 +148,9 @@ if 'RENDER' in os.environ:
     STATIC_ROOT = BASE_DIR / 'staticfiles'
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-    # Медіафайли (фото профілю, фото/відео в чаті)
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+
     MEDIA_ROOT = BASE_DIR / 'media'
     MEDIA_URL = '/media/'
