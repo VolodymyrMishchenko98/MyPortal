@@ -18,13 +18,6 @@ staticfiles/
 
 # Environment/config
 .env
-RENDER
-
-# IDE/editor files
-.vscode/
-.idea/
-*.swp
-*.swo
 
 # OS files
 .DS_Store

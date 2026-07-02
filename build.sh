@@ -2,6 +2,6 @@
 set -o errexit
 
 pip install --upgrade pip
-pip install -r myproject/requirements.txt
-python myproject/manage.py collectstatic --no-input
-python myproject/manage.py migrate --noinput
+pip install -r requirements.txt
+python manage.py collectstatic --no-input
+python manage.py migrate --noinput
