@@ -18,7 +18,7 @@ staticfiles/
 
 # Environment/config
 .env
-.env.*
+RENDER
 
 # IDE/editor files
 .vscode/

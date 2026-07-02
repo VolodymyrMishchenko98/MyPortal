@@ -4,7 +4,7 @@ services:
     env: python
     plan: free
     buildCommand: "./build.sh"
-    startCommand: "cd myproject && gunicorn myproject.wsgi:application"
+    startCommand: "gunicorn myproject.wsgi:application"
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.9
@@ -14,6 +14,8 @@ services:
         fromDatabase:
           name: myportal-db
           property: connectionString
+      - key: RENDER
+        value: "true"
 
 databases:
   - name: myportal-db
